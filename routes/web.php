@@ -47,7 +47,6 @@ Route::get('/categorias', function () {
 
 });
 
-
 Route::get('/medicamentos', function () {
 
     $medicamentos = json_decode(json_encode([
@@ -197,5 +196,154 @@ Route::get('/medicamentos', function () {
 
 });
 
+Route::get('/clientes/vip', function(){
+    // Creamos la lista de clientes array()
+   $clientes = [
+        (object) ['id' => 1, 'nombre' => 'Karen Criollo', 'telefono' => '+503 
+        70000000', 'puntos_acumulados' => 15],
+        (object) ['id' => 2, 'nombre' => 'Joel Cruz', 'telefono' => '+503 
+        76000000', 'puntos_acumulados' => 5],
+        (object) ['id' => 3, 'nombre' => 'Christopher Guevara', 'telefono' => '+503 
+        76600000', 'puntos_acumulados' => 25]
+   ];
+   
+   // Creamos la tabla con los registros de los clientes de forma dinámica
+   $html = '
+    <table border=1 cellspacing=0>
+        <thead>
+            <tr>
+                <th>ID CLIENTE</th>
+                <th>NOMBRE</th>
+                <th>TELÉFONO</th>
+                <th>PUNTOS ACUMULADOS</th>
+            </tr>
+        </thead>
+        <tbody>
+   ';
+   foreach($clientes as $cliente){
+        $html .= "
+            <tr>
+                <td>$cliente->id</td>
+                <td>$cliente->nombre</td>
+                <td>$cliente->telefono</td>
+                <td>$cliente->puntos_acumulados</td>
+            </tr>
+        ";
+   }
+   $html .= '
+        </tbody>
+    </table>
+   ';
+
+   // Pintamos en la ventana del navegador la tabla
+   echo $html;
+});
+
+Route::get('/proveedores/internacionales', function(){
+    // Creamos la lista de proveedores
+   $proveedores = [
+        (object) ['empresa' => 'Pharma Plus', 'pais_origen' => 'Alemania', 'medicamento_principal' => 'Paracetamol', 
+        'tiempo_entrega_dias' => 10],
+        (object) ['empresa' => 'MedLife', 'pais_origen' => 'Estados Unidos', 'medicamento_principal' => 'Ibuprofeno', 
+        'tiempo_entrega_dias' => 20],
+        (object) ['empresa' => 'BioSalud', 'pais_origen' => 'Canadá', 'medicamento_principal' => 'Amoxicilina', 
+        'tiempo_entrega_dias' => 18]
+   ];
+   
+   // Creamos la tabla con los registros de los proveedores de forma dinámica
+   $html = '
+    <table border=1 cellspacing=0>
+        <thead>
+            <tr>
+                <th>EMPRESA</th>
+                <th>PAÍS DE ORIGEN</th>
+                <th>MEDICAMENTO PRINCIPAL</th>
+                <th>TIEMPO DE ENTREGA</th>
+            </tr>
+        </thead>
+        <tbody>
+   ';
+   // Recorremos el arreglo de proveedores
+   foreach($proveedores as $proveedor){
+        //Se guarda unicamente el tiempo de entrega
+        $tiempo = $proveedor->tiempo_entrega_dias;
+
+        //Si el tiempo es mayor a 15 dias se agrega una advertencia
+        if($tiempo > 15){
+            $tiempo .= " (Demora Crítica)";
+        }
+
+        $html .= "
+            <tr>
+                <td>$proveedor->empresa</td>
+                <td>$proveedor->pais_origen</td>
+                <td>$proveedor->medicamento_principal</td>
+                <td>$tiempo</td> 
+            </tr>
+        ";
+        //Dentro de la tabla solo se escribe $tiempo ya que se guardo en esa variable 
+        //<td>$proveedor->tiempo_entrega_dias</td> ya que debe salir el texto tambien, no solo el numero
+   }
+   $html .= '
+        </tbody>
+    </table>
+   ';
+
+   // Pintamos en la ventana del navegador la tabla
+   echo $html;
+});
+
+Route::get('/lotes/inventario', function(){
+    // Creamos la lista de lotes
+   $lotes = [
+        (object) ['codigo_lote' => 'LT001', 'nombre_medicamento' => 'Insulina', 'cantidad_cajas' => 120, 
+        'temperatura_requerida_celsius' => 4],
+        (object) ['codigo_lote' => 'LT002', 'nombre_medicamento' => 'Paracetamol', 'cantidad_cajas' => 200, 
+        'temperatura_requerida_celsius' => 25],
+        (object) ['codigo_lote' => 'LT003', 'nombre_medicamento' => 'Vacuna Influenza', 'cantidad_cajas' => 80, 
+        'temperatura_requerida_celsius' => 2]
+   ];
+   
+   // Creamos la tabla con los registros de los lotes
+   $html = '
+    <table border=1 cellspacing=0>
+        <thead>
+            <tr>
+                <th>CÓDIGO DEL LOTE</th>
+                <th>MEDICAMENTO</th>
+                <th>CANTIDAD DE CAJAS</th>
+                <th>TEMPERATURA (°C)</th>
+            </tr>
+        </thead>
+        <tbody>
+   ';
+   // Recorremos cada lote
+   foreach($lotes as $lote){
+        //Se guarda el nombre del medicamento
+        $medicamento = $lote->nombre_medicamento;
+
+        //Si se requiere una temperatura menor o igual a 5°C, se agrega la etiqueta al nombre
+        if($lote->temperatura_requerida_celsius <= 5){
+            $medicamento .= " [Requiere Cadena de Frío]";
+        }
+
+        // Información del lote de la tabla
+        $html .= "
+            <tr>
+                <td>$lote->codigo_lote</td>
+                <td>$medicamento</td>
+                <td>$lote->cantidad_cajas</td>
+                <td>$lote->temperatura_requerida_celsius</td> 
+            </tr>
+        ";
+   }
+   $html .= '
+        </tbody>
+    </table>
+   ';
+
+   // Pintamos en la ventana del navegador la tabla
+   echo $html;
+});
 
 require __DIR__.'/settings.php';
