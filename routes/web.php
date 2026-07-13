@@ -346,4 +346,175 @@ Route::get('/lotes/inventario', function(){
    echo $html;
 });
 
+Route::get('/facturas/clientes/historial', function(){
+    // Creamos la lista de lotes
+   $facturas = [
+        (object) ['num_factura' => '001', 'cliente' => 'Marisela Rivas', 'fecha_emision' => '25/03/2025', 
+        'total_pagar' => '$12.25', 'estado' => 'Pagada'],
+        (object) ['num_factura' => '002', 'cliente' => 'Antonio Reyes', 'fecha_emision' => '12/02/2025', 
+        'total_pagar' => '$10.30', 'estado' => 'Pendiente'],
+        (object) ['num_factura' => '003', 'cliente' => 'Valentina Argueta', 'fecha_emision' => '04/01/2025', 
+        'total_pagar' => '$6.35', 'estado' => 'Pendiente']
+   ];
+   
+   // Creamos la tabla con los registros de los lotes
+   $html = '
+    <table border=1 cellspacing=0>
+        <thead>
+            <tr>
+                <th>NÚMERO DE FACTURA</th>
+                <th>CLIENTE</th>
+                <th>FECHA DE EMISIÓN</th>
+                <th>TOTAL A PAGAR</th>
+                <th>ESTADO</th>
+            </tr>
+        </thead>
+        <tbody>
+   ';
+   // Recorremos cada factura
+   foreach($facturas as $factura){
+        //Se muestra el estado de pago
+        $estado_pago = $factura->estado;
+
+        //Si está pendiente se muestra un mensaje de pendiente de cobro
+        if($factura->estado == ("Pendiente")){
+            $estado_pago .= "(PENDIENTE DE COBRO)";
+        }
+
+        // Información de facturas de la tabla
+        $html .= "
+            <tr>
+                <td>$factura->num_factura</td>
+                <td>$factura->cliente</td>
+                <td>$factura->fecha_emision</td>
+                <td>$factura->total_pagar</td>
+                <td>".($factura->estado == 'Pendiente' ? '(PENDIENTE DE COBRO)' : $factura->estado)."</td>
+                
+            </tr>
+        ";
+   }
+   $html .= '
+        </tbody>
+    </table>
+   ';
+
+   // Pintamos en la ventana del navegador la tabla
+   echo $html;
+});
+
+Route::get('/facturas/clientes/detalle/{num_factura}', function($num_factura){
+    // Creamos la lista de lotes
+   $facturas = [
+        (object) ['num_factura' => '001', 'cliente' => 'Marisela Rivas', 'fecha_emision' => '25/03/2025', 
+        'total_pagar' => '$12.25', 'estado' => 'Pagada'],
+        (object) ['num_factura' => '002', 'cliente' => 'Antonio Reyes', 'fecha_emision' => '12/02/2025', 
+        'total_pagar' => '$10.30', 'estado' => 'Pendiente'],
+        (object) ['num_factura' => '003', 'cliente' => 'Valentina Argueta', 'fecha_emision' => '04/01/2025', 
+        'total_pagar' => '$6.35', 'estado' => 'Pendiente']
+   ];
+   
+   // variable donde se guardará el resultado
+   $html = "<h1>Factura NO encontrada</h1>";
+
+   // Recorremos cada factura para buscar la solicitada
+   foreach($facturas as $factura){
+        //Si está pendiente se muestra un mensaje de pendiente de cobro
+        if($factura->num_factura == $num_factura){
+
+        // Información de facturas de la tabla
+        $html = "
+            <div>
+                <h2>Detalle de factura</h2>
+
+                <strong>Número de Factura:</strong> $factura->num_factura
+
+                    <ul>
+                        <li><strong>Cliente:</strong> $factura->cliente</li>
+                        <li><strong>Fecha de Emisión:</strong> $factura->fecha_emision</li>
+                        <li><strong>Total a Pagar:</strong> $factura->total_pagar</li>
+                        <li><strong>Estado:</strong> $factura->estado</li>
+                    </ul>
+            </div>
+        ";
+        //Al encontrar la factura, salimos del ciclo
+        break;
+        }
+
+   }
+
+   // Pintamos en la ventana del navegador la tabla
+   echo $html;
+});
+
+Route::get('/facturas/proveedores/resumen', function(){
+    // Creamos la lista de lotes
+   $proveedores = [
+        (object) ['proveedor' => 'Laboratorio Bayer', 'nrc' => '12345-6', 'monto_sin_iva' => '120.00'],
+        (object) ['proveedor' => 'Laboratorio MK', 'nrc' => '78901-2', 'monto_sin_iva' => '250.00'],
+        (object) ['proveedor' => 'Laboratorio Pfizer', 'nrc' => '34567-8', 'monto_sin_iva' => '180.00'],
+   ];
+   //Se crean variables para acumular totales
+   $total_sin_iva = 0;
+   $total_iva = 0;
+   $total_general = 0;
+   
+   // Creamos la tabla
+   $html = '
+    <table border=1 cellspacing=0>
+        <thead>
+            <tr>
+                <th>PROVEEDOR</th>
+                <th>NRC</th>
+                <th>MONTO SIN IVA</th>
+                <th>IVA (13%)</th>
+                <th>MONTO TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+   ';
+   // Recorremos cada factura
+   foreach($proveedores as $factura){
+        //Calculamos el IVA (13%)
+        $iva = $factura->monto_sin_iva * 0.13;
+
+        //Calculamos el monto total
+        $monto_total = $factura->monto_sin_iva + $iva;
+
+        //Acumulamos los totales
+        $total_sin_iva += $factura->monto_sin_iva;
+        $total_iva += $iva;
+        $total_general += $monto_total;
+
+        // Agregamos la fila a la tabla
+        $html .= "
+            <tr>
+                <td>$factura->proveedor</td>
+                <td>$factura->nrc</td>
+                <td>$" . number_format($factura->monto_sin_iva,2) . "</td>
+                <td>$" . number_format($iva,2) . "</td>
+                <td>$" . number_format($monto_total,2) . "</td>
+            </tr>
+        ";
+    }
+
+    // Agregamos el pie de la tabla con los totales
+    $html .= "
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <th colspan='2'>TOTALES</th>
+                <th>$" . number_format($total_sin_iva,2) . "</th>
+                <th>$" . number_format($total_iva,2) . "</th>
+                <th>$" . number_format($total_general,2) . "</th>
+            </tr>
+        </tfoot>
+
+    </table>
+    ";
+
+   // Pintamos en la ventana del navegador la tabla
+   echo $html;
+});
+
 require __DIR__.'/settings.php';
